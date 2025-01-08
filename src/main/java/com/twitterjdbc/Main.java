@@ -23,17 +23,17 @@ public class Main {
         la contraseña e inserte los datos de usuario, teniendo en cuenta la fecha actual, mostrando un mensaje
         por pantalla del resultado de la operación.
      */
-    public static void executeRegister(Connection con) throws SQLException {
+    public static void ejecutarRegistrar(Connection con) throws SQLException {
         System.out.print("Usuario: ");
         String usuario = SCANNER.nextLine();
         System.out.print("Email: ");
         String email = SCANNER.nextLine();
         System.out.print("Contraseña: ");
         String password = SCANNER.nextLine();
-        register(con, usuario, email, password);
+        registrar(con, usuario, email, password);
     }
 
-    public static void register(Connection con, String usuario, String email, String password) throws SQLException {
+    public static void registrar(Connection con, String usuario, String email, String password) throws SQLException {
         String query = "INSERT INTO users (username, email, password, createDate) VALUES(?, ?, ?, ?);";
         PreparedStatement preparedStatement = con.prepareStatement(query);
         String passwordEncriptada = BCrypt.hashpw(password, BCrypt.gensalt());
@@ -49,14 +49,14 @@ public class Main {
         System.out.println("Registrado correctamente");
     }
 
-    public static Connection connect(String url, String usuario, String password) throws SQLException {
+    public static Connection conectar(String url, String usuario, String password) throws SQLException {
         return DriverManager.getConnection(url, usuario, password);
     }
 
     public static void main(String[] args) {
         try {
-            con = connect(URL, USUARIO, PASSWORD);
-            executeRegister(con);
+            con = conectar(URL, USUARIO, PASSWORD);
+            ejecutarRegistrar(con);
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
