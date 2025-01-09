@@ -20,17 +20,17 @@ public class Main {
         la contraseña e inserte los datos de usuario, teniendo en cuenta la fecha actual, mostrando un mensaje
         por pantalla del resultado de la operación.
      */
-    public static void ejecutarRegistrar(Connection con) throws Exception {
+    public static void ejecutarRegistrar() throws Exception {
         System.out.print("Usuario: ");
         String usuario = SCANNER.nextLine();
         System.out.print("Email: ");
         String email = SCANNER.nextLine();
         System.out.print("Contraseña: ");
         String password = SCANNER.nextLine();
-        registrar(con, usuario, email, password);
+        registrar(usuario, email, password);
     }
 
-    public static void registrar(Connection con, String usuario, String email, String password) throws Exception {
+    public static void registrar(String usuario, String email, String password) throws Exception {
         String query = "INSERT INTO users (username, email, password, createDate) VALUES(?, ?, ?, ?);";
         PreparedStatement sentencia = con.prepareStatement(query);
         String passwordEncriptada = BCrypt.hashpw(password, BCrypt.gensalt());
@@ -51,15 +51,15 @@ public class Main {
         compruebe que la contraseña hasheada (la que proviene de la base de datos) coincide con la contraseña
         introducida, mostrando un mensaje de éxito. En caso contrario lanzar una excepción.
      */
-    public static void ejecutarIniciarSesion(Connection con) throws Exception {
+    public static void ejecutarIniciarSesion() throws Exception {
         System.out.print("Usuario: ");
         String usuario = SCANNER.nextLine();
         System.out.print("Contraseña: ");
         String password = SCANNER.nextLine();
-        iniciarSesion(con, usuario, password);
+        iniciarSesion(usuario, password);
     }
 
-    public static void iniciarSesion(Connection con, String usuario, String password) throws Exception {
+    public static void iniciarSesion(String usuario, String password) throws Exception {
         String query = "SELECT id, password FROM users WHERE username = \"" + usuario + "\";";
         Statement sentencia = con.createStatement();
         ResultSet resultado = sentencia.executeQuery(query);
@@ -81,7 +81,7 @@ public class Main {
         usuario, email, descripción y fecha de registro del userID estático.
      */
 
-    public static void mostrarTuPerfil(Connection con) throws SQLException {
+    public static void mostrarTuPerfil() throws SQLException {
         String query = "SELECT username, email, description, createDate FROM users WHERE id = " + usuarioID + ";";
         Statement sentencia = con.createStatement();
         ResultSet resultado = sentencia.executeQuery(query);
@@ -97,13 +97,13 @@ public class Main {
         Crear un método tweetear que reciba una conexión y un String con el texto a twittear y que inserte una
         publicación con el userID estático, el texto pasado por pantalla y la fecha actual
      */
-    public static void ejecutarPublicar(Connection con) throws SQLException {
+    public static void ejecutarPublicar() throws SQLException {
         System.out.print("¿Qué quieres publicar?:\n\t> ");
         String texto = SCANNER.nextLine();
-        publicar(con, texto);
+        publicar(texto);
     }
 
-    public static void publicar(Connection con, String texto) throws SQLException {
+    public static void publicar(String texto) throws SQLException {
         String query = "INSERT INTO publications (userId, text, createDate) VALUES(?, ?, ?);";
         PreparedStatement sentencia = con.prepareStatement(query);
         LocalDateTime registerDate = LocalDateTime.now();
@@ -121,7 +121,7 @@ public class Main {
         Crear un método showYourTweets que reciba una conexión y muestre por pantalla el id de la publicación,
         el nombre de usuario de userID, el texto y la fecha en la que se creo la publicación.
      */
-    public static void mostrarTusPublicaciones(Connection con) throws SQLException {
+    public static void mostrarTusPublicaciones() throws SQLException {
         String query = "SELECT publications.id, users.username, publications.text, publications.createDate " +
                        "FROM publications JOIN users ON users.id = publications.userId " +
                        "WHERE publications.userId = " + usuarioID + ";";
@@ -141,16 +141,16 @@ public class Main {
         publicación coincida con el id pasado como argumento Y QUE EL ID DEL USUARIO QUE LA PUBLICÓ COINCIDA
         CON EL ATRIBUTO ESTÁTICO userID.
      */
-    public static void ejecutarEliminarPublicacion(Connection con) throws SQLException {
+    public static void ejecutarEliminarPublicacion() throws SQLException {
         System.out.println("-------------------------------------------------------");
-        mostrarTusPublicaciones(con);
+        mostrarTusPublicaciones();
         System.out.println("-------------------------------------------------------");
         System.out.print("¿Qué publicacion quieres borrar?: ");
         int publicacionId = Integer.parseInt(SCANNER.nextLine());
-        eliminarPublicacion(con, publicacionId);
+        eliminarPublicacion(publicacionId);
     }
 
-    public static void eliminarPublicacion(Connection con, int publicacionId) throws SQLException {
+    public static void eliminarPublicacion(int publicacionId) throws SQLException {
         String query = "DELETE FROM publications WHERE id = ? AND userId = ?;";
         PreparedStatement sentencia = con.prepareStatement(query);
         sentencia.setInt(1, publicacionId);
@@ -170,7 +170,7 @@ public class Main {
         del tweet y la fecha en la que se publicó el tweet de todos los tweets. Deben aparecer en orden de más
         nuevo a más viejo.
      */
-    public static void mostrarTodasLasPublicaciones(Connection con) throws SQLException {
+    public static void mostrarTodasLasPublicaciones() throws SQLException {
         String query = "SELECT publications.id, users.username, publications.text, publications.createDate " +
                 "FROM publications JOIN users ON users.id = publications.userId ORDER BY publications.createDate DESC;";
         Statement sentencia = con.createStatement();
@@ -191,7 +191,7 @@ public class Main {
         email, descripción y fecha de registro de todos los usuarios menos del usuario cuyo id sea idéntico
         al userID estático.
      */
-    public static void mostrarTodosLosPerfiles(Connection con) throws SQLException {
+    public static void mostrarTodosLosPerfiles() throws SQLException {
         String query = "SELECT id, username, email, description, createDate FROM users WHERE id != " + usuarioID + ";";
         Statement sentencia = con.createStatement();
         ResultSet resultado = sentencia.executeQuery(query);
@@ -210,18 +210,18 @@ public class Main {
         Crear un método estático showOtherProfile que dada una conexión y un nombre de usuario te muestre todos
         los datos de ese usuario.
      */
-    public static void ejecutarMostrarUnPerfil(Connection con) throws Exception {
+    public static void ejecutarMostrarUnPerfil() throws Exception {
         System.out.print("Indica el nombre del usuario: ");
         String nombreUsuario = SCANNER.nextLine();
-        if (comprobarUsuarioExistenteString(con, nombreUsuario)) {
-                mostrarUnPerfil(con, nombreUsuario);
+        if (comprobarUsuarioExistenteString(nombreUsuario)) {
+                mostrarUnPerfil(nombreUsuario);
         }
         else {
             System.out.println("Este usuario no existe");
         }
     }
 
-    public static boolean comprobarUsuarioExistenteString(Connection con, String usuario) throws Exception {
+    public static boolean comprobarUsuarioExistenteString(String usuario) throws Exception {
         String query = "SELECT username FROM users";
         Statement sentencia = con.createStatement();
         ResultSet resultado = sentencia.executeQuery(query);
@@ -236,7 +236,7 @@ public class Main {
         return false;
     }
 
-    public static void mostrarUnPerfil(Connection con, String nombreUsuario) throws SQLException {
+    public static void mostrarUnPerfil(String nombreUsuario) throws SQLException {
         String query = "SELECT id, username, email, description, createDate FROM users WHERE username = \"" + nombreUsuario + "\";";
         Statement sentencia = con.createStatement();
         ResultSet resultado = sentencia.executeQuery(query);
@@ -252,15 +252,15 @@ public class Main {
         Crear un método follow que reciba una conexión y un id al que seguir e insertar en la tabla follows que
         el userID sigue al id pasado como argumento.
      */
-    public static void ejecutarSeguir(Connection con) throws Exception {
+    public static void ejecutarSeguir() throws Exception {
         System.out.println("----------------------");
-        mostrarTodosLosPerfiles(con);
+        mostrarTodosLosPerfiles();
         System.out.println("----------------------");
         System.out.print("¿A qué usuario quieres seguir?: ");
         int usuarioASeguir = Integer.parseInt(SCANNER.nextLine());
-        if (comprobarUsuarioExistenteInt(con, usuarioASeguir)) {
+        if (comprobarUsuarioExistenteInt(usuarioASeguir)) {
             if (usuarioASeguir != usuarioID) {
-                seguir(con, usuarioASeguir);
+                seguir(usuarioASeguir);
             }
             else {
                 System.out.println("No puedes seguirte a ti mismo");
@@ -271,7 +271,7 @@ public class Main {
         }
     }
 
-    public static boolean comprobarUsuarioExistenteInt(Connection con, int usuario) throws Exception {
+    public static boolean comprobarUsuarioExistenteInt(int usuario) throws Exception {
         String query = "SELECT id FROM users";
         Statement sentencia = con.createStatement();
         ResultSet resultado = sentencia.executeQuery(query);
@@ -286,7 +286,7 @@ public class Main {
         return false;
     }
 
-    public static void seguir(Connection con, int usuarioASeguir) throws Exception {
+    public static void seguir(int usuarioASeguir) throws Exception {
         String query = "INSERT INTO follows (users_id, userToFollowId) VALUES(?, ?);";
         PreparedStatement sentencia = con.prepareStatement(query);
         sentencia.setInt(1, usuarioID);
@@ -300,7 +300,7 @@ public class Main {
         Crear un método showYourFollows que reciba una conexión y muestre por pantalla todos los datos de
         los usuarios que sigues.
      */
-    public static void mostrarLosUsuariosQueSigues(Connection con) throws SQLException {
+    public static void mostrarLosUsuariosQueSigues() throws SQLException {
         String query = "SELECT users.id, users.username, users.email, users.description, users.createDate " +
                        "FROM users JOIN follows ON users.id = follows.userToFollowId WHERE follows.users_id = " +
                        usuarioID + ";";
@@ -321,15 +321,15 @@ public class Main {
         Crear un método unfollow que reciba una conexión y un id al que seguir y borrar en la tabla follows el
         registro que representa que el userID sigue al id pasado como argumento.
      */
-    public static void ejecutarDejarDeSeguir(Connection con) throws Exception {
+    public static void ejecutarDejarDeSeguir() throws Exception {
         System.out.println("----------------------");
-        mostrarLosUsuariosQueSigues(con);
+        mostrarLosUsuariosQueSigues();
         System.out.println("----------------------");
         System.out.print("¿A qué usuario quieres dejar de seguir?: ");
         int usuarioADejarDeSeguir = Integer.parseInt(SCANNER.nextLine());
-        if (comprobarUsuarioQueSiguesExistenteInt(con, usuarioADejarDeSeguir)) {
+        if (comprobarUsuarioQueSiguesExistenteInt(usuarioADejarDeSeguir)) {
             if (usuarioADejarDeSeguir != usuarioID) {
-                dejarDeSeguir(con, usuarioADejarDeSeguir);
+                dejarDeSeguir(usuarioADejarDeSeguir);
             }
             else {
                 System.out.println("No puedes dejarte de seguir a ti mismo");
@@ -340,7 +340,7 @@ public class Main {
         }
     }
 
-    public static boolean comprobarUsuarioQueSiguesExistenteInt(Connection con, int usuario) throws Exception {
+    public static boolean comprobarUsuarioQueSiguesExistenteInt(int usuario) throws Exception {
         String query = "SELECT userToFollowId FROM follows WHERE users_id = " + usuarioID + ";";
         Statement sentencia = con.createStatement();
         ResultSet resultado = sentencia.executeQuery(query);
@@ -355,7 +355,7 @@ public class Main {
         return false;
     }
 
-    public static void dejarDeSeguir(Connection con, int usuarioADejarDeSeguir) throws Exception {
+    public static void dejarDeSeguir(int usuarioADejarDeSeguir) throws Exception {
         String query = "DELETE FROM follows WHERE users_id = ? AND userToFollowId = ?;";
         PreparedStatement sentencia = con.prepareStatement(query);
         sentencia.setInt(1, usuarioID);
@@ -375,7 +375,7 @@ public class Main {
         Crear un método showYourFollowers que reciba una conexión y muestre por pantalla todos los datos de los
         usuarios que siguen al atributo userID estático.
      */
-    public static void mostrarLosUsuariosQueTeSiguen(Connection con) throws SQLException {
+    public static void mostrarLosUsuariosQueTeSiguen() throws SQLException {
         String query = "SELECT users.id, users.username, users.email, users.description, users.createDate " +
                 "FROM users JOIN follows ON users.id = follows.users_id WHERE follows.userToFollowId = " +
                 usuarioID + ";";
@@ -398,7 +398,7 @@ public class Main {
         el texto del tweet y la fecha en la que se publicó el tweet de los tweets que hayan publicado las personas
         que sigues. Deben aparecer en orden de más nuevo a más viejo.
      */
-    public static void mostrarPublicacionesDeUsuariosSeguidos(Connection con) throws SQLException {
+    public static void mostrarPublicacionesDeUsuariosSeguidos() throws SQLException {
         String query = "SELECT publications.id, users.username, publications.text, publications.createDate " +
                        "FROM publications JOIN users ON users.id = publications.userId " +
                                          "JOIN follows ON follows.userToFollowId = users.id " +
@@ -416,7 +416,7 @@ public class Main {
 
 
 
-    public static void elegirRegistrarOiniciarSesion(Connection con) throws Exception {
+    public static void elegirRegistrarOiniciarSesion() throws Exception {
         boolean bandera = true;
         while (bandera) {
             System.out.println("Elige una de estas opciones: ");
@@ -427,31 +427,29 @@ public class Main {
             int accion = Integer.parseInt(SCANNER.nextLine());
             System.out.println();
             switch (accion) {
-                case 0:
+                case 0 -> {
                     System.out.println("Programa cerrado. Hasta luego");
                     bandera = false;
-                    break;
-                case 1:
-                    ejecutarRegistrar(con);
+                }
+                case 1 -> {
+                    ejecutarRegistrar();
                     System.out.println();
                     Thread.sleep(1000);
-                    break;
-                case 2:
-                    ejecutarIniciarSesion(con);
+                }
+                case 2 -> {
+                    ejecutarIniciarSesion();
                     System.out.println();
                     Thread.sleep(1000);
-                    elegirAccionesDeUsuario(con);
+                    elegirAccionesDeUsuario();
                     Thread.sleep(1000);
                     System.out.println();
-                    break;
-                default:
-                    System.out.println("El índice introducido no es correcto, inténtalo de nuevo.");
-                    break;
+                }
+                default -> System.out.println("El índice introducido no es correcto, inténtalo de nuevo.");
             }
         }
     }
 
-    public static void elegirAccionesDeUsuario(Connection con) throws Exception {
+    public static void elegirAccionesDeUsuario() throws Exception {
         boolean bandera = true;
         while (bandera) {
             System.out.println("Elige una de estas opciones: ");
@@ -472,74 +470,72 @@ public class Main {
             int accion = Integer.parseInt(SCANNER.nextLine());
             System.out.println();
             switch (accion) {
-                case 0:
+                case 0 -> {
                     System.out.println("Sesión cerrada con éxito");
                     bandera = false;
                     usuarioID = -1;
-                    break;
-                case 1:
-                    mostrarTuPerfil(con);
+                }
+                case 1 -> {
+                    mostrarTuPerfil();
                     System.out.println();
                     Thread.sleep(1000);
-                    break;
-                case 2:
-                    ejecutarPublicar(con);
+                }
+                case 2 -> {
+                    ejecutarPublicar();
                     System.out.println();
                     Thread.sleep(1000);
-                    break;
-                case 3:
-                    mostrarTusPublicaciones(con);
+                }
+                case 3 -> {
+                    mostrarTusPublicaciones();
                     System.out.println();
                     Thread.sleep(1000);
-                    break;
-                case 4:
-                    ejecutarEliminarPublicacion(con);
+                }
+                case 4 -> {
+                    ejecutarEliminarPublicacion();
                     System.out.println();
                     Thread.sleep(1000);
-                    break;
-                case 5:
-                    mostrarTodasLasPublicaciones(con);
+                }
+                case 5 -> {
+                    mostrarTodasLasPublicaciones();
                     System.out.println();
                     Thread.sleep(1000);
-                    break;
-                case 6:
-                    mostrarTodosLosPerfiles(con);
+                }
+                case 6 -> {
+                    mostrarTodosLosPerfiles();
                     System.out.println();
                     Thread.sleep(1000);
-                    break;
-                case 7:
-                    ejecutarMostrarUnPerfil(con);
+                }
+                case 7 -> {
+                    ejecutarMostrarUnPerfil();
                     System.out.println();
                     Thread.sleep(1000);
-                    break;
-                case 8:
-                    ejecutarSeguir(con);
+                }
+                case 8 -> {
+                    ejecutarSeguir();
                     System.out.println();
                     Thread.sleep(1000);
-                    break;
-                case 9:
-                    mostrarLosUsuariosQueSigues(con);
+                }
+                case 9 -> {
+                    mostrarLosUsuariosQueSigues();
                     System.out.println();
                     Thread.sleep(1000);
-                    break;
-                case 10:
-                    ejecutarDejarDeSeguir(con);
+                }
+                case 10 -> {
+                    ejecutarDejarDeSeguir();
                     System.out.println();
                     Thread.sleep(1000);
-                    break;
-                case 11:
-                    mostrarLosUsuariosQueTeSiguen(con);
+                }
+                case 11 -> {
+                    mostrarLosUsuariosQueTeSiguen();
                     System.out.println();
                     Thread.sleep(1000);
-                    break;
-                case 12:
-                    mostrarPublicacionesDeUsuariosSeguidos(con);
+                }
+                case 12 -> {
+                    mostrarPublicacionesDeUsuariosSeguidos();
                     System.out.println();
                     Thread.sleep(1000);
-                    break;
-                default:
-                    System.out.println("El índice introducido no es correcto, inténtalo de nuevo.");
-                    break;
+                }
+                default -> System.out.println("El índice introducido no es correcto, inténtalo de nuevo.");
             }
         }
     }
@@ -551,7 +547,7 @@ public class Main {
     public static void main(String[] args) {
         try {
             con = conectar(URL, USUARIO, PASSWORD);
-            elegirRegistrarOiniciarSesion(con);
+            elegirRegistrarOiniciarSesion();
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
