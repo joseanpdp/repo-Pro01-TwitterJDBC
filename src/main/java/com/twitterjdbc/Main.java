@@ -372,15 +372,48 @@ public class Main {
     }
 
     /*
+        Crear un método showYourFollowers que reciba una conexión y muestre por pantalla todos los datos de los
+        usuarios que siguen al atributo userID estático.
+     */
+    public static void mostrarLosUsuariosQueTeSiguen(Connection con) throws SQLException {
+        String query = "SELECT users.id, users.username, users.email, users.description, users.createDate " +
+                "FROM users JOIN follows ON users.id = follows.users_id WHERE follows.userToFollowId = " +
+                usuarioID + ";";
+        Statement sentencia = con.createStatement();
+        ResultSet resultado = sentencia.executeQuery(query);
+        System.out.println("-------------------------");
+        while(resultado.next()) {
+            System.out.println("[" + resultado.getString(1) + "] - " + resultado.getString(2) + " | Creada el " + resultado.getString(5));
+            System.out.println("\t[" + resultado.getString(3) + "]");
+            System.out.println("\t" + resultado.getString(4));
+            System.out.println("-------------------------");
+        }
+        resultado.close();
+        sentencia.close();
+    }
+
+
+    /*
         Crear un método showFollowedTweets que reciba una conexión y muestre por pantalla el nombre del usuario,
         el texto del tweet y la fecha en la que se publicó el tweet de los tweets que hayan publicado las personas
         que sigues. Deben aparecer en orden de más nuevo a más viejo.
      */
+    public static void mostrarPublicacionesDeUsuariosSeguidos(Connection con) throws SQLException {
+        String query = "SELECT publications.id, users.username, publications.text, publications.createDate " +
+                       "FROM publications JOIN users ON users.id = publications.userId " +
+                                         "JOIN follows ON follows.userToFollowId = users.id " +
+                       "WHERE follows.users_id = " + usuarioID + " ORDER BY publications.createDate DESC;";
+        Statement sentencia = con.createStatement();
+        ResultSet resultado = sentencia.executeQuery(query);
+        while(resultado.next()) {
+            System.out.println("[" + resultado.getInt(1) + "] - " + resultado.getString(2) +
+                    "\n\t" + resultado.getString(3) + "\n\t-Creada el " +
+                    resultado.getString(4) + "-");
+        }
+        resultado.close();
+        sentencia.close();
+    }
 
-    /*
-        Crear un método showYourFollowers que reciba una conexión y muestre por pantalla todos los datos de los
-        usuarios que siguen al atributo userID estático.
-     */
 
 
     public static void elegirRegistrarOiniciarSesion(Connection con) throws Exception {
@@ -432,6 +465,8 @@ public class Main {
             System.out.println("\t[8] Seguir");
             System.out.println("\t[9] Mostrar usuarios que sigues");
             System.out.println("\t[10] Dejar de seguir");
+            System.out.println("\t[11] Mostrar usuarios que te siguen");
+            System.out.println("\t[12] Mostrar publicaciones de usuarios seguidos");
             System.out.println("\t[0] Cerrar sesión");
             System.out.print("Acción: ");
             int accion = Integer.parseInt(SCANNER.nextLine());
@@ -489,6 +524,16 @@ public class Main {
                     break;
                 case 10:
                     ejecutarDejarDeSeguir(con);
+                    System.out.println();
+                    Thread.sleep(1000);
+                    break;
+                case 11:
+                    mostrarLosUsuariosQueTeSiguen(con);
+                    System.out.println();
+                    Thread.sleep(1000);
+                    break;
+                case 12:
+                    mostrarPublicacionesDeUsuariosSeguidos(con);
                     System.out.println();
                     Thread.sleep(1000);
                     break;
