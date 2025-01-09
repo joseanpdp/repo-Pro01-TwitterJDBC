@@ -207,31 +207,181 @@ public class Main {
     }
 
     /*
+        Crear un método estático showOtherProfile que dada una conexión y un nombre de usuario te muestre todos
+        los datos de ese usuario.
+     */
+    public static void ejecutarMostrarUnPerfil(Connection con) throws Exception {
+        System.out.print("Indica el nombre del usuario: ");
+        String nombreUsuario = SCANNER.nextLine();
+        if (comprobarUsuarioExistenteString(con, nombreUsuario)) {
+                mostrarUnPerfil(con, nombreUsuario);
+        }
+        else {
+            System.out.println("Este usuario no existe");
+        }
+    }
+
+    public static boolean comprobarUsuarioExistenteString(Connection con, String usuario) throws Exception {
+        String query = "SELECT username FROM users";
+        Statement sentencia = con.createStatement();
+        ResultSet resultado = sentencia.executeQuery(query);
+        System.out.println("-------------------------");
+        while(resultado.next()) {
+            if (resultado.getString(1).equals(usuario)) {
+                return true;
+            }
+        }
+        resultado.close();
+        sentencia.close();
+        return false;
+    }
+
+    public static void mostrarUnPerfil(Connection con, String nombreUsuario) throws SQLException {
+        String query = "SELECT id, username, email, description, createDate FROM users WHERE username = \"" + nombreUsuario + "\";";
+        Statement sentencia = con.createStatement();
+        ResultSet resultado = sentencia.executeQuery(query);
+        resultado.next();
+        System.out.println("[" + resultado.getString(1) + "] - " + resultado.getString(2) + " | Creada el " + resultado.getString(5));
+        System.out.println("\t[" + resultado.getString(3) + "]");
+        System.out.println("\t" + resultado.getString(4));
+        resultado.close();
+        sentencia.close();
+    }
+
+    /*
+        Crear un método follow que reciba una conexión y un id al que seguir e insertar en la tabla follows que
+        el userID sigue al id pasado como argumento.
+     */
+    public static void ejecutarSeguir(Connection con) throws Exception {
+        System.out.println("----------------------");
+        mostrarTodosLosPerfiles(con);
+        System.out.println("----------------------");
+        System.out.print("¿A qué usuario quieres seguir?: ");
+        int usuarioASeguir = Integer.parseInt(SCANNER.nextLine());
+        if (comprobarUsuarioExistenteInt(con, usuarioASeguir)) {
+            if (usuarioASeguir != usuarioID) {
+                seguir(con, usuarioASeguir);
+            }
+            else {
+                System.out.println("No puedes seguirte a ti mismo");
+            }
+        }
+        else {
+            System.out.println("Este usuario no existe");
+        }
+    }
+
+    public static boolean comprobarUsuarioExistenteInt(Connection con, int usuario) throws Exception {
+        String query = "SELECT id FROM users";
+        Statement sentencia = con.createStatement();
+        ResultSet resultado = sentencia.executeQuery(query);
+        System.out.println("-------------------------");
+        while(resultado.next()) {
+            if (resultado.getInt(1) == usuario) {
+                return true;
+            }
+        }
+        resultado.close();
+        sentencia.close();
+        return false;
+    }
+
+    public static void seguir(Connection con, int usuarioASeguir) throws Exception {
+        String query = "INSERT INTO follows (users_id, userToFollowId) VALUES(?, ?);";
+        PreparedStatement sentencia = con.prepareStatement(query);
+        sentencia.setInt(1, usuarioID);
+        sentencia.setInt(2, usuarioASeguir);
+        sentencia.executeUpdate();
+        sentencia.close();
+        System.out.println("Registrado correctamente");
+    }
+
+    /*
+        Crear un método showYourFollows que reciba una conexión y muestre por pantalla todos los datos de
+        los usuarios que sigues.
+     */
+    public static void mostrarLosUsuariosQueSigues(Connection con) throws SQLException {
+        String query = "SELECT users.id, users.username, users.email, users.description, users.createDate " +
+                       "FROM users JOIN follows ON users.id = follows.userToFollowId WHERE follows.users_id = " +
+                       usuarioID + ";";
+        Statement sentencia = con.createStatement();
+        ResultSet resultado = sentencia.executeQuery(query);
+        System.out.println("-------------------------");
+        while(resultado.next()) {
+            System.out.println("[" + resultado.getString(1) + "] - " + resultado.getString(2) + " | Creada el " + resultado.getString(5));
+            System.out.println("\t[" + resultado.getString(3) + "]");
+            System.out.println("\t" + resultado.getString(4));
+            System.out.println("-------------------------");
+        }
+        resultado.close();
+        sentencia.close();
+    }
+
+    /*
+        Crear un método unfollow que reciba una conexión y un id al que seguir y borrar en la tabla follows el
+        registro que representa que el userID sigue al id pasado como argumento.
+     */
+    public static void ejecutarDejarDeSeguir(Connection con) throws Exception {
+        System.out.println("----------------------");
+        mostrarLosUsuariosQueSigues(con);
+        System.out.println("----------------------");
+        System.out.print("¿A qué usuario quieres dejar de seguir?: ");
+        int usuarioADejarDeSeguir = Integer.parseInt(SCANNER.nextLine());
+        if (comprobarUsuarioQueSiguesExistenteInt(con, usuarioADejarDeSeguir)) {
+            if (usuarioADejarDeSeguir != usuarioID) {
+                dejarDeSeguir(con, usuarioADejarDeSeguir);
+            }
+            else {
+                System.out.println("No puedes dejarte de seguir a ti mismo");
+            }
+        }
+        else {
+            System.out.println("Este usuario no lo sigues o no existe");
+        }
+    }
+
+    public static boolean comprobarUsuarioQueSiguesExistenteInt(Connection con, int usuario) throws Exception {
+        String query = "SELECT userToFollowId FROM follows WHERE users_id = " + usuarioID + ";";
+        Statement sentencia = con.createStatement();
+        ResultSet resultado = sentencia.executeQuery(query);
+        System.out.println("-------------------------");
+        while(resultado.next()) {
+            if (resultado.getInt(1) == usuario) {
+                return true;
+            }
+        }
+        resultado.close();
+        sentencia.close();
+        return false;
+    }
+
+    public static void dejarDeSeguir(Connection con, int usuarioADejarDeSeguir) throws Exception {
+        String query = "DELETE FROM follows WHERE users_id = ? AND userToFollowId = ?;";
+        PreparedStatement sentencia = con.prepareStatement(query);
+        sentencia.setInt(1, usuarioID);
+        sentencia.setInt(2, usuarioADejarDeSeguir);
+        int filasAfectadas = sentencia.executeUpdate();
+        if (filasAfectadas > 0) {
+            System.out.println("Se ha dejado de seguir al usuario con éxito");
+        }
+        else {
+            System.out.println("Usuario no encontrado");
+        }
+        sentencia.executeUpdate();
+        sentencia.close();
+    }
+
+    /*
         Crear un método showFollowedTweets que reciba una conexión y muestre por pantalla el nombre del usuario,
         el texto del tweet y la fecha en la que se publicó el tweet de los tweets que hayan publicado las personas
         que sigues. Deben aparecer en orden de más nuevo a más viejo.
      */
 
     /*
-        Crear un método showYourFollows que reciba una conexión y muestre por pantalla todos los datos de
-        los usuarios que sigues.
-     */
-    /*
         Crear un método showYourFollowers que reciba una conexión y muestre por pantalla todos los datos de los
         usuarios que siguen al atributo userID estático.
      */
-    /*
-        Crear un método estático showOtherProfile que dada una conexión y un nombre de usuario te muestre todos
-        los datos de ese usuario.
-     */
-    /*
-        Crear un método follow que reciba una conexión y un id al que seguir e insertar en la tabla follows que
-        el userID sigue al id pasado como argumento.
-     */
-    /*
-        Crear un método unfollow que reciba una conexión y un id al que seguir y borrar en la tabla follows el
-        registro que representa que el userID sigue al id pasado como argumento.
-     */
+
 
     public static void elegirRegistrarOiniciarSesion(Connection con) throws Exception {
         boolean bandera = true;
@@ -278,6 +428,10 @@ public class Main {
             System.out.println("\t[4] Eliminar publicación");
             System.out.println("\t[5] Ver todas las publicaciones");
             System.out.println("\t[6] Ver todos los perfiles");
+            System.out.println("\t[7] Ver un perfil");
+            System.out.println("\t[8] Seguir");
+            System.out.println("\t[9] Mostrar usuarios que sigues");
+            System.out.println("\t[10] Dejar de seguir");
             System.out.println("\t[0] Cerrar sesión");
             System.out.print("Acción: ");
             int accion = Integer.parseInt(SCANNER.nextLine());
@@ -315,6 +469,26 @@ public class Main {
                     break;
                 case 6:
                     mostrarTodosLosPerfiles(con);
+                    System.out.println();
+                    Thread.sleep(1000);
+                    break;
+                case 7:
+                    ejecutarMostrarUnPerfil(con);
+                    System.out.println();
+                    Thread.sleep(1000);
+                    break;
+                case 8:
+                    ejecutarSeguir(con);
+                    System.out.println();
+                    Thread.sleep(1000);
+                    break;
+                case 9:
+                    mostrarLosUsuariosQueSigues(con);
+                    System.out.println();
+                    Thread.sleep(1000);
+                    break;
+                case 10:
+                    ejecutarDejarDeSeguir(con);
                     System.out.println();
                     Thread.sleep(1000);
                     break;
