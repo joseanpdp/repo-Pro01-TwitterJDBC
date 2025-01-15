@@ -13,18 +13,18 @@ public class LoginServiceImpl implements LoginService {
         this.con = con;
     }
 
-    public int iniciarSesion(String usuario, String password) throws Exception {
-        String query = "SELECT id, password FROM users WHERE username = \"" + usuario + "\";";
-        Statement sentencia = con.createStatement();
-        ResultSet resultado = sentencia.executeQuery(query);
-        resultado.next();
-        String passwordEncriptada = resultado.getString(2);
+    public int login(String username, String password) throws Exception {
+        String query = "SELECT id, password FROM users WHERE username = \"" + username + "\";";
+        Statement statement = con.createStatement();
+        ResultSet resultSet = statement.executeQuery(query);
+        resultSet.next();
+        String passwordEncriptada = resultSet.getString(2);
         if (BCrypt.checkpw(password, passwordEncriptada)) {
             System.out.println("La contraseña ingresada es correcta.");
-            return resultado.getInt(1);
+            return resultSet.getInt(1);
         }
-        resultado.close();
-        sentencia.close();
+        resultSet.close();
+        statement.close();
         throw new Exception("La contraseña no es correcta.");
     }
 }

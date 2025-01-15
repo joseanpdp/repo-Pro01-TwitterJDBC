@@ -14,97 +14,93 @@ public class UsersServiceImpl implements UsersService {
     public UsersServiceImpl(Connection con) {
         this.con = con;
     }
-    /*
-        Crear un método showYourProfile que reciba una conexión y muestre por pantalla el nombre de
-        usuario, email, descripción y fecha de registro del userID estático.
-     */
 
-    public void mostrarTuPerfil(int usuarioID, Consumer<ResultSet> consumidor) throws SQLException {
-        String query = "SELECT username, email, description, createDate FROM users WHERE id = " + usuarioID + ";";
-        Statement sentencia = con.createStatement();
-        ResultSet resultado = sentencia.executeQuery(query);
-        resultado.next();
-        consumidor.accept(resultado);
-        resultado.close();
-        sentencia.close();
+    public void showYourProfile(int userID, Consumer<ResultSet> consumer) throws SQLException {
+        String query = "SELECT username, email, description, createDate FROM users WHERE id = " + userID + ";";
+        Statement statement = con.createStatement();
+        ResultSet resultSet = statement.executeQuery(query);
+        resultSet.next();
+        consumer.accept(resultSet);
+        resultSet.close();
+        statement.close();
     }
 
-    public void mostrarTodosLosPerfiles(int usuarioID, Consumer<ResultSet> consumidor) throws SQLException {
-        String query = "SELECT id, username, email, description, createDate FROM users WHERE id != " + usuarioID + ";";
-        Statement sentencia = con.createStatement();
-        ResultSet resultado = sentencia.executeQuery(query);
-        while (resultado.next()) {
-            consumidor.accept(resultado);
+    public void showAllProfiles(int userID, Consumer<ResultSet> consumer) throws SQLException {
+        String query = "SELECT id, username, email, description, createDate FROM users WHERE id != " + userID + ";";
+        Statement statement = con.createStatement();
+        ResultSet resultSet = statement.executeQuery(query);
+        while (resultSet.next()) {
+            consumer.accept(resultSet);
         }
-        resultado.close();
-        sentencia.close();
+        resultSet.close();
+        statement.close();
     }
 
-    public boolean comprobarUsuarioExistenteString(String usuario) throws Exception {
+    public boolean userExistsString(String user) throws Exception {
         String query = "SELECT username FROM users";
-        Statement sentencia = con.createStatement();
-        ResultSet resultado = sentencia.executeQuery(query);
-        while(resultado.next()) {
-            if (resultado.getString(1).equals(usuario)) {
+        Statement statement = con.createStatement();
+        ResultSet resultSet = statement.executeQuery(query);
+        while(resultSet.next()) {
+            if (resultSet.getString(1).equals(user)) {
                 return true;
             }
         }
-        resultado.close();
-        sentencia.close();
+        resultSet.close();
+        statement.close();
         return false;
     }
 
-    public void mostrarUnPerfil(String nombreUsuario, Consumer<ResultSet> consumidor) throws SQLException {
-        String query = "SELECT id, username, email, description, createDate FROM users WHERE username = \"" + nombreUsuario + "\";";
-        Statement sentencia = con.createStatement();
-        ResultSet resultado = sentencia.executeQuery(query);
-        resultado.next();
-        consumidor.accept(resultado);
-        resultado.close();
-        sentencia.close();
+    public void showAProfile(String username, Consumer<ResultSet> consumer) throws SQLException {
+        String query = "SELECT id, username, email, description, createDate FROM users WHERE username = \"" + username + "\";";
+        Statement statement = con.createStatement();
+        ResultSet resultSet = statement.executeQuery(query);
+        resultSet.next();
+        consumer.accept(resultSet);
+        resultSet.close();
+        statement.close();
     }
 
-    public boolean comprobarUsuarioExistenteInt(int usuario) throws Exception {
+    public boolean userExistsInt(int user) throws Exception {
         String query = "SELECT id FROM users";
-        Statement sentencia = con.createStatement();
-        ResultSet resultado = sentencia.executeQuery(query);
+        Statement statement = con.createStatement();
+        ResultSet resultSet = statement.executeQuery(query);
         System.out.println("-------------------------");
-        while(resultado.next()) {
-            if (resultado.getInt(1) == usuario) {
+        while(resultSet.next()) {
+            if (resultSet.getInt(1) == user) {
                 return true;
             }
         }
-        resultado.close();
-        sentencia.close();
+        resultSet.close();
+        statement.close();
         return false;
     }
 
-    public void mostrarLosUsuariosQueSigues(int usuarioID, Consumer<ResultSet> consumidor) throws SQLException {
+    public void showFollowedUsers(int userID, Consumer<ResultSet> consumer) throws SQLException {
         String query = "SELECT users.id, users.username, users.email, users.description, users.createDate " +
                 "FROM users JOIN follows ON users.id = follows.userToFollowId WHERE follows.users_id = " +
-                usuarioID + ";";
-        Statement sentencia = con.createStatement();
-        ResultSet resultado = sentencia.executeQuery(query);
+                userID + ";";
+        Statement statement = con.createStatement();
+        ResultSet resultSet = statement.executeQuery(query);
         System.out.println("-------------------------");
-        while (resultado.next()) {
-            consumidor.accept(resultado);
+        while (resultSet.next()) {
+            consumer.accept(resultSet);
         }
-        resultado.close();
-        sentencia.close();
+        resultSet.close();
+        statement.close();
     }
 
 
-    public void mostrarLosUsuariosQueTeSiguen(int usuarioID, Consumer<ResultSet> consumidor) throws SQLException {
+    public void showYourFollowers(int userID, Consumer<ResultSet> consumer) throws SQLException {
         String query = "SELECT users.id, users.username, users.email, users.description, users.createDate " +
                 "FROM users JOIN follows ON users.id = follows.users_id WHERE follows.userToFollowId = " +
-                usuarioID + ";";
-        Statement sentencia = con.createStatement();
-        ResultSet resultado = sentencia.executeQuery(query);
+                userID + ";";
+        Statement statement = con.createStatement();
+        ResultSet resultSet = statement.executeQuery(query);
         System.out.println("-------------------------");
-        while(resultado.next()) {
-            consumidor.accept(resultado);
+        while(resultSet.next()) {
+            consumer.accept(resultSet);
         }
-        resultado.close();
-        sentencia.close();
+        resultSet.close();
+        statement.close();
     }
 }

@@ -17,13 +17,13 @@ public class RegisterController {
             la contraseña e inserte los datos de usuario, teniendo en cuenta la fecha actual, mostrando un mensaje
             por pantalla del resultado de la operación.
          */
-    public void registrar() throws Exception {
+    public void register() throws Exception {
         System.out.print("Usuario: ");
-        String usuario = scanner.nextLine();
+        String username = scanner.nextLine();
         System.out.print("Email: ");
         String email = scanner.nextLine();
         System.out.print("Contraseña: ");
         String password = scanner.nextLine();
-        registerService.registrar(usuario, email, password);
+        registerService.register(username, email, password);
     }
 }

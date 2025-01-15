@@ -1,7 +1,6 @@
 package com.twitterjdbc.controller;
 
 import com.twitterjdbc.services.FollowsService;
-import com.twitterjdbc.services.UsersService;
 
 import java.util.Scanner;
 
@@ -26,9 +25,9 @@ public class FollowsController {
         System.out.println("----------------------");
         System.out.print("¿A qué usuario quieres seguir?: ");
         int usuarioASeguir = Integer.parseInt(scanner.nextLine());
-        if (followsService.comprobarUsuarioExistenteInt(usuarioASeguir)) {
+        if (followsService.userExistsInt(usuarioASeguir)) {
             if (usuarioASeguir != usuarioID) {
-                followsService.seguir(usuarioASeguir, usuarioID);
+                followsService.follow(usuarioASeguir, usuarioID);
             } else {
                 System.out.println("No puedes seguirte a ti mismo");
             }
@@ -47,9 +46,9 @@ public class FollowsController {
         System.out.println("----------------------");
         System.out.print("¿A qué usuario quieres dejar de seguir?: ");
         int usuarioADejarDeSeguir = Integer.parseInt(scanner.nextLine());
-        if (followsService.comprobarUsuarioQueSiguesExistenteInt(usuarioADejarDeSeguir, usuarioID)) {
+        if (followsService.userFollowdExistsInt(usuarioADejarDeSeguir, usuarioID)) {
             if (usuarioADejarDeSeguir != usuarioID) {
-                followsService.dejarDeSeguir(usuarioADejarDeSeguir, usuarioID);
+                followsService.unfollow(usuarioADejarDeSeguir, usuarioID);
             }
             else {
                 System.out.println("No puedes dejarte de seguir a ti mismo");

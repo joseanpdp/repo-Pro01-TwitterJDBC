@@ -1,12 +1,8 @@
 package com.twitterjdbc.controller;
 
 import com.twitterjdbc.services.PublicationsService;
-import com.twitterjdbc.services.UsersService;
 
-import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.Scanner;
 
 public class PublicationsController {
@@ -25,7 +21,7 @@ public class PublicationsController {
     public void post(int usuarioID) throws SQLException {
         System.out.print("¿Qué quieres publicar?:\n\t> ");
         String texto = scanner.nextLine();
-        publicationsService.publicar(texto, usuarioID);
+        publicationsService.post(texto, usuarioID);
     }
 
     /*
@@ -33,7 +29,7 @@ public class PublicationsController {
         el nombre de usuario de userID, el texto y la fecha en la que se creo la publicación.
      */
     public void showYourTweets(int usuarioID) throws SQLException {
-        publicationsService.mostrarTusPublicaciones(usuarioID, resultSet -> {
+        publicationsService.showYourPublications(usuarioID, resultSet -> {
             try {
                 System.out.println("[" + resultSet.getInt(1) + "] - " + resultSet.getString(2) +
                         "\n\t" + resultSet.getString(3) + "\n\t-Creada el " +
@@ -56,7 +52,7 @@ public class PublicationsController {
         System.out.println("-------------------------------------------------------");
         System.out.print("¿Qué publicacion quieres borrar?: ");
         int publicacionId = Integer.parseInt(scanner.nextLine());
-        publicationsService.eliminarPublicacion(publicacionId, usuarioID);
+        publicationsService.deletePublication(publicacionId, usuarioID);
     }
 
     /*
@@ -65,7 +61,7 @@ public class PublicationsController {
         nuevo a más viejo.
      */
     public void showTweets() throws SQLException {
-        publicationsService.mostrarTodasLasPublicaciones(resultSet -> {
+        publicationsService.showAllPublications(resultSet -> {
             try {
                 System.out.println("[" + resultSet.getInt(1) + "] - " + resultSet.getString(2) +
                         "\n\t" + resultSet.getString(3) + "\n\t-Creada el " +
@@ -83,7 +79,7 @@ public class PublicationsController {
         que sigues. Deben aparecer en orden de más nuevo a más viejo.
      */
     public void showFollowedTweets(int usuarioID) throws SQLException {
-        publicationsService.mostrarPublicacionesDeUsuariosSeguidos(usuarioID, resultSet -> {
+        publicationsService.showFollowedTweets(usuarioID, resultSet -> {
             try {
                 System.out.println("[" + resultSet.getInt(1) + "] - " + resultSet.getString(2) +
                         "\n\t" + resultSet.getString(3) + "\n\t-Creada el " +

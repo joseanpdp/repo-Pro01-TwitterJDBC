@@ -12,59 +12,59 @@ public class FollowsServiceImpl implements FollowsService {
         this.con = con;
     }
 
-    public boolean comprobarUsuarioExistenteInt(int usuario) throws Exception {
+    public boolean userExistsInt(int user) throws Exception {
         String query = "SELECT id FROM users";
-        Statement sentencia = con.createStatement();
-        ResultSet resultado = sentencia.executeQuery(query);
-        while(resultado.next()) {
-            if (resultado.getInt(1) == usuario) {
+        Statement statement = con.createStatement();
+        ResultSet resultSet = statement.executeQuery(query);
+        while(resultSet.next()) {
+            if (resultSet.getInt(1) == user) {
                 return true;
             }
         }
-        resultado.close();
-        sentencia.close();
+        resultSet.close();
+        statement.close();
         return false;
     }
 
 
-    public void seguir(int usuarioASeguir, int usuarioID) throws Exception {
+    public void follow(int userToFollow, int userID) throws Exception {
         String query = "INSERT INTO follows (users_id, userToFollowId) VALUES(?, ?);";
-        PreparedStatement sentencia = con.prepareStatement(query);
-        sentencia.setInt(1, usuarioID);
-        sentencia.setInt(2, usuarioASeguir);
-        sentencia.executeUpdate();
-        sentencia.close();
+        PreparedStatement statement = con.prepareStatement(query);
+        statement.setInt(1, userID);
+        statement.setInt(2, userToFollow);
+        statement.executeUpdate();
+        statement.close();
         System.out.println("Registrado correctamente");
     }
 
-    public boolean comprobarUsuarioQueSiguesExistenteInt(int usuario, int usuarioID) throws Exception {
-        String query = "SELECT userToFollowId FROM follows WHERE users_id = " + usuarioID + ";";
-        Statement sentencia = con.createStatement();
-        ResultSet resultado = sentencia.executeQuery(query);
+    public boolean userFollowdExistsInt(int user, int userID) throws Exception {
+        String query = "SELECT userToFollowId FROM follows WHERE users_id = " + userID + ";";
+        Statement statement = con.createStatement();
+        ResultSet resultSet = statement.executeQuery(query);
         System.out.println("-------------------------");
-        while(resultado.next()) {
-            if (resultado.getInt(1) == usuario) {
+        while(resultSet.next()) {
+            if (resultSet.getInt(1) == user) {
                 return true;
             }
         }
-        resultado.close();
-        sentencia.close();
+        resultSet.close();
+        statement.close();
         return false;
     }
 
-    public void dejarDeSeguir(int usuarioADejarDeSeguir, int usuarioID) throws Exception {
+    public void unfollow(int userToUnfollow, int userID) throws Exception {
         String query = "DELETE FROM follows WHERE users_id = ? AND userToFollowId = ?;";
-        PreparedStatement sentencia = con.prepareStatement(query);
-        sentencia.setInt(1, usuarioID);
-        sentencia.setInt(2, usuarioADejarDeSeguir);
-        int filasAfectadas = sentencia.executeUpdate();
-        if (filasAfectadas > 0) {
+        PreparedStatement statement = con.prepareStatement(query);
+        statement.setInt(1, userID);
+        statement.setInt(2, userToUnfollow);
+        int affectedRows = statement.executeUpdate();
+        if (affectedRows > 0) {
             System.out.println("Se ha dejado de seguir al usuario con éxito");
         }
         else {
             System.out.println("Usuario no encontrado");
         }
-        sentencia.executeUpdate();
-        sentencia.close();
+        statement.executeUpdate();
+        statement.close();
     }
 }

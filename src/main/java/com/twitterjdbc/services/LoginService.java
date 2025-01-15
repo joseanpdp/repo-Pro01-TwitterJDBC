@@ -1,5 +1,5 @@
 package com.twitterjdbc.services;
 
 public interface LoginService {
-    public int iniciarSesion(String usuario, String password) throws Exception;
+    public int login(String username, String password) throws Exception;
 }

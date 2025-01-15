@@ -13,74 +13,74 @@ public class PublicationsServiceImpl implements PublicationsService{
         this.con = con;
     }
 
-    public void publicar(String texto, int usuarioID) throws SQLException {
+    public void post(String text, int userID) throws SQLException {
         String query = "INSERT INTO publications (userId, text, createDate) VALUES(?, ?, ?);";
-        PreparedStatement sentencia = con.prepareStatement(query);
+        PreparedStatement statement = con.prepareStatement(query);
         LocalDateTime registerDate = LocalDateTime.now();
         DateTimeFormatter dateFormat = DateTimeFormatter.ofPattern("yyyy-MM-dd-HH:mm:ss");
         String formatedDate = registerDate.format(dateFormat);
-        sentencia.setInt(1, usuarioID);
-        sentencia.setString(2, texto);
-        sentencia.setString(3, formatedDate);
-        sentencia.executeUpdate();
-        sentencia.close();
+        statement.setInt(1, userID);
+        statement.setString(2, text);
+        statement.setString(3, formatedDate);
+        statement.executeUpdate();
+        statement.close();
         System.out.println("Publicado correctamente");
     }
 
 
-    public void mostrarTusPublicaciones(int usuarioID, Consumer<ResultSet> consumidor) throws SQLException {
+    public void showYourPublications(int userID, Consumer<ResultSet> consumer) throws SQLException {
         String query = "SELECT publications.id, users.username, publications.text, publications.createDate " +
                 "FROM publications JOIN users ON users.id = publications.userId " +
-                "WHERE publications.userId = " + usuarioID + ";";
-        Statement sentencia = con.createStatement();
-        ResultSet resultado = sentencia.executeQuery(query);
-        while(resultado.next()) {
-            consumidor.accept(resultado);
+                "WHERE publications.userId = " + userID + ";";
+        Statement statement = con.createStatement();
+        ResultSet resultSet = statement.executeQuery(query);
+        while(resultSet.next()) {
+            consumer.accept(resultSet);
         }
-        resultado.close();
-        sentencia.close();
+        resultSet.close();
+        statement.close();
     }
 
 
-    public void eliminarPublicacion(int publicacionId, int usuarioID) throws SQLException {
+    public void deletePublication(int publicationId, int userID) throws SQLException {
         String query = "DELETE FROM publications WHERE id = ? AND userId = ?;";
-        PreparedStatement sentencia = con.prepareStatement(query);
-        sentencia.setInt(1, publicacionId);
-        sentencia.setInt(2, usuarioID);
-        int filasAfectadas = sentencia.executeUpdate();
-        if (filasAfectadas > 0) {
+        PreparedStatement statement = con.prepareStatement(query);
+        statement.setInt(1, publicationId);
+        statement.setInt(2, userID);
+        int affectedRows = statement.executeUpdate();
+        if (affectedRows > 0) {
             System.out.println("Se ha eliminado la publicación con éxito");
         }
         else {
             System.out.println("Publicación no encontrada");
         }
-        sentencia.close();
+        statement.close();
     }
 
-    public void mostrarTodasLasPublicaciones(Consumer<ResultSet> consumidor) throws SQLException {
+    public void showAllPublications(Consumer<ResultSet> consumer) throws SQLException {
         String query = "SELECT publications.id, users.username, publications.text, publications.createDate " +
                 "FROM publications JOIN users ON users.id = publications.userId ORDER BY publications.createDate DESC;";
-        Statement sentencia = con.createStatement();
-        ResultSet resultado = sentencia.executeQuery(query);
+        Statement statement = con.createStatement();
+        ResultSet resultSet = statement.executeQuery(query);
         System.out.println("-------------------------");
-        while(resultado.next()) {
-            consumidor.accept(resultado);
+        while(resultSet.next()) {
+            consumer.accept(resultSet);
         }
-        resultado.close();
-        sentencia.close();
+        resultSet.close();
+        statement.close();
     }
 
-    public void mostrarPublicacionesDeUsuariosSeguidos(int usuarioID, Consumer<ResultSet> consumidor) throws SQLException {
+    public void showFollowedTweets(int userID, Consumer<ResultSet> consumer) throws SQLException {
         String query = "SELECT publications.id, users.username, publications.text, publications.createDate " +
                 "FROM publications JOIN users ON users.id = publications.userId " +
                 "JOIN follows ON follows.userToFollowId = users.id " +
-                "WHERE follows.users_id = " + usuarioID + " ORDER BY publications.createDate DESC;";
-        Statement sentencia = con.createStatement();
-        ResultSet resultado = sentencia.executeQuery(query);
-        while(resultado.next()) {
-            consumidor.accept(resultado);
+                "WHERE follows.users_id = " + userID + " ORDER BY publications.createDate DESC;";
+        Statement statement = con.createStatement();
+        ResultSet resultSet = statement.executeQuery(query);
+        while(resultSet.next()) {
+            consumer.accept(resultSet);
         }
-        resultado.close();
-        sentencia.close();
+        resultSet.close();
+        statement.close();
     }
 }

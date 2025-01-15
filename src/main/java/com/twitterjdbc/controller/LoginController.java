@@ -1,7 +1,6 @@
 package com.twitterjdbc.controller;
 
 import com.twitterjdbc.services.LoginService;
-import com.twitterjdbc.services.RegisterService;
 
 import java.util.Scanner;
 
@@ -23,6 +22,6 @@ public class LoginController {
         String usuario = scanner.nextLine();
         System.out.print("Contraseña: ");
         String password = scanner.nextLine();
-        return loginService.iniciarSesion(usuario, password);
+        return loginService.login(usuario, password);
     }
 }

@@ -1,5 +1,5 @@
 package com.twitterjdbc.services;
 
 public interface RegisterService {
-    public void registrar(String usuario, String email, String password) throws Exception;
+    public void register(String username, String email, String password) throws Exception;
 }

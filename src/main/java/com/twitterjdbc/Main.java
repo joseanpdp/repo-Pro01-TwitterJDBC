@@ -10,10 +10,10 @@ import com.twitterjdbc.services.*;
 public class Main {
     static final Scanner SCANNER = new Scanner(System.in);
     static final String URL = "jdbc:mysql://localhost:3306/social_network";
-    static final String USUARIO = "root";
+    static final String USER = "root";
     static final String PASSWORD = "root";
     static Connection con;
-    static int usuarioID = -1;
+    static int userID = -1;
 
     static RegisterController registerController;
     static LoginController loginController;
@@ -22,7 +22,7 @@ public class Main {
     static FollowsController followsController;
 
 
-    public static void elegirRegistrarOiniciarSesion() throws Exception {
+    public static void chooseRegisterOrLogin() throws Exception {
         boolean bandera = true;
 
         while (bandera) {
@@ -39,15 +39,15 @@ public class Main {
                     bandera = false;
                 }
                 case 1 -> {
-                    registerController.registrar();
+                    registerController.register();
                     System.out.println();
                     Thread.sleep(1000);
                 }
                 case 2 -> {
-                    usuarioID = loginController.login();
+                    userID = loginController.login();
                     System.out.println();
                     Thread.sleep(1000);
-                    elegirAccionesDeUsuario();
+                    chooseUserActions();
                     Thread.sleep(1000);
                     System.out.println();
                 }
@@ -56,7 +56,7 @@ public class Main {
         }
     }
 
-    public static void elegirAccionesDeUsuario() throws Exception {
+    public static void chooseUserActions() throws Exception {
         boolean bandera = true;
         while (bandera) {
             System.out.println("Elige una de estas opciones: ");
@@ -80,25 +80,25 @@ public class Main {
                 case 0 -> {
                     System.out.println("Sesión cerrada con éxito");
                     bandera = false;
-                    usuarioID = -1;
+                    userID = -1;
                 }
                 case 1 -> {
-                    usersController.showMyProfile(usuarioID);
+                    usersController.showMyProfile(userID);
                     System.out.println();
                     Thread.sleep(1000);
                 }
                 case 2 -> {
-                    publicationsController.post(usuarioID);
+                    publicationsController.post(userID);
                     System.out.println();
                     Thread.sleep(1000);
                 }
                 case 3 -> {
-                    publicationsController.showYourTweets(usuarioID);
+                    publicationsController.showYourTweets(userID);
                     System.out.println();
                     Thread.sleep(1000);
                 }
                 case 4 -> {
-                    publicationsController.deletePublication(usuarioID);
+                    publicationsController.deletePublication(userID);
                     System.out.println();
                     Thread.sleep(1000);
                 }
@@ -108,7 +108,7 @@ public class Main {
                     Thread.sleep(1000);
                 }
                 case 6 -> {
-                    usersController.showAllProfiles(usuarioID);
+                    usersController.showAllProfiles(userID);
                     System.out.println();
                     Thread.sleep(1000);
                 }
@@ -118,27 +118,27 @@ public class Main {
                     Thread.sleep(1000);
                 }
                 case 8 -> {
-                    followsController.follow(usuarioID);
+                    followsController.follow(userID);
                     System.out.println();
                     Thread.sleep(1000);
                 }
                 case 9 -> {
-                    usersController.showYourFollows(usuarioID);
+                    usersController.showYourFollows(userID);
                     System.out.println();
                     Thread.sleep(1000);
                 }
                 case 10 -> {
-                    followsController.unfollow(usuarioID);
+                    followsController.unfollow(userID);
                     System.out.println();
                     Thread.sleep(1000);
                 }
                 case 11 -> {
-                    usersController.showYourFollowers(usuarioID);
+                    usersController.showYourFollowers(userID);
                     System.out.println();
                     Thread.sleep(1000);
                 }
                 case 12 -> {
-                    publicationsController.showFollowedTweets(usuarioID);
+                    publicationsController.showFollowedTweets(userID);
                     System.out.println();
                     Thread.sleep(1000);
                 }
@@ -153,14 +153,13 @@ public class Main {
 
     public static void main(String[] args) {
         try {
-            con = conectar(URL, USUARIO, PASSWORD);
+            con = conectar(URL, USER, PASSWORD);
             registerController = new RegisterController(new RegisterServiceImpl(con), SCANNER);
             loginController = new LoginController(new LoginServiceImpl(con), SCANNER);
             usersController = new UsersController(new UsersServiceImpl(con), SCANNER);
             publicationsController = new PublicationsController(new PublicationsServiceImpl(con), SCANNER);
             followsController = new FollowsController(new FollowsServiceImpl(con), usersController, SCANNER);
-            elegirRegistrarOiniciarSesion();
-            elegirAccionesDeUsuario();
+            chooseRegisterOrLogin();
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
