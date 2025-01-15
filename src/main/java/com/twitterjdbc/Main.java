@@ -3,9 +3,7 @@ package com.twitterjdbc;
 import java.sql.*;
 import java.util.Scanner;
 
-import com.twitterjdbc.controller.LoginController;
-import com.twitterjdbc.controller.RegisterController;
-import com.twitterjdbc.controller.UsersController;
+import com.twitterjdbc.controller.*;
 import com.twitterjdbc.services.*;
 
 
@@ -20,8 +18,10 @@ public class Main {
     static RegisterController registerController;
     static LoginController loginController;
     static UsersController usersController;
+    static PublicationsController publicationsController;
+    static FollowsController followsController;
 
-    /*
+
     public static void elegirRegistrarOiniciarSesion() throws Exception {
         boolean bandera = true;
 
@@ -39,12 +39,12 @@ public class Main {
                     bandera = false;
                 }
                 case 1 -> {
-                    usersServiceImpl.ejecutarRegistrar(SCANNER);
+                    registerController.registrar();
                     System.out.println();
                     Thread.sleep(1000);
                 }
                 case 2 -> {
-                    usuarioID = usersServiceImpl.ejecutarIniciarSesion(SCANNER);
+                    usuarioID = loginController.login();
                     System.out.println();
                     Thread.sleep(1000);
                     elegirAccionesDeUsuario();
@@ -83,69 +83,69 @@ public class Main {
                     usuarioID = -1;
                 }
                 case 1 -> {
-                    usersServiceImpl.mostrarTuPerfil(usuarioID);
+                    usersController.showMyProfile(usuarioID);
                     System.out.println();
                     Thread.sleep(1000);
                 }
                 case 2 -> {
-                    publicationsServiceImpl.ejecutarPublicar(SCANNER, usuarioID);
+                    publicationsController.post(usuarioID);
                     System.out.println();
                     Thread.sleep(1000);
                 }
                 case 3 -> {
-                    publicationsServiceImpl.mostrarTusPublicaciones(usuarioID);
+                    publicationsController.showYourTweets(usuarioID);
                     System.out.println();
                     Thread.sleep(1000);
                 }
                 case 4 -> {
-                    publicationsServiceImpl.ejecutarEliminarPublicacion(SCANNER, usuarioID);
+                    publicationsController.deletePublication(usuarioID);
                     System.out.println();
                     Thread.sleep(1000);
                 }
                 case 5 -> {
-                    publicationsServiceImpl.mostrarTodasLasPublicaciones();
+                    publicationsController.showTweets();
                     System.out.println();
                     Thread.sleep(1000);
                 }
                 case 6 -> {
-                    usersServiceImpl.mostrarTodosLosPerfiles(usuarioID);
+                    usersController.showAllProfiles(usuarioID);
                     System.out.println();
                     Thread.sleep(1000);
                 }
                 case 7 -> {
-                    usersServiceImpl.ejecutarMostrarUnPerfil(SCANNER);
+                    usersController.showAProfile();
                     System.out.println();
                     Thread.sleep(1000);
                 }
                 case 8 -> {
-                    usersServiceImpl.ejecutarSeguir(SCANNER, usuarioID);
+                    followsController.follow(usuarioID);
                     System.out.println();
                     Thread.sleep(1000);
                 }
                 case 9 -> {
-                    usersServiceImpl.mostrarLosUsuariosQueSigues(usuarioID);
+                    usersController.showYourFollows(usuarioID);
                     System.out.println();
                     Thread.sleep(1000);
                 }
                 case 10 -> {
-                    usersServiceImpl.ejecutarDejarDeSeguir(SCANNER, usuarioID);
+                    followsController.unfollow(usuarioID);
                     System.out.println();
                     Thread.sleep(1000);
                 }
                 case 11 -> {
-                    usersServiceImpl.mostrarLosUsuariosQueTeSiguen(usuarioID);
+                    usersController.showYourFollowers(usuarioID);
                     System.out.println();
                     Thread.sleep(1000);
                 }
                 case 12 -> {
-                    publicationsServiceImpl.mostrarPublicacionesDeUsuariosSeguidos(usuarioID);
+                    publicationsController.showFollowedTweets(usuarioID);
                     System.out.println();
                     Thread.sleep(1000);
                 }
                 default -> System.out.println("El índice introducido no es correcto, inténtalo de nuevo.");
             }
         }
-    }*/
+    }
 
     public static Connection conectar(String url, String usuario, String password) throws SQLException {
         return DriverManager.getConnection(url, usuario, password);
@@ -156,14 +156,11 @@ public class Main {
             con = conectar(URL, USUARIO, PASSWORD);
             registerController = new RegisterController(new RegisterServiceImpl(con), SCANNER);
             loginController = new LoginController(new LoginServiceImpl(con), SCANNER);
-            usersController = new UsersController(new UsersServiceImpl(con), SCANNER, usuarioID);
-            //registerController.registrar();
-            usuarioID = loginController.login();
-            usersController.setUsuarioID(usuarioID);
-            usersController.showMyProfile();
-            System.out.println("--------------------");
-            usersController.showAllProfiles();
-
+            usersController = new UsersController(new UsersServiceImpl(con), SCANNER);
+            publicationsController = new PublicationsController(new PublicationsServiceImpl(con), SCANNER);
+            followsController = new FollowsController(new FollowsServiceImpl(con), usersController, SCANNER);
+            elegirRegistrarOiniciarSesion();
+            elegirAccionesDeUsuario();
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

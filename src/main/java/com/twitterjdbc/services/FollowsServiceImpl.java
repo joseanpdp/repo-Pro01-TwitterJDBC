@@ -37,6 +37,21 @@ public class FollowsServiceImpl implements FollowsService {
         System.out.println("Registrado correctamente");
     }
 
+    public boolean comprobarUsuarioQueSiguesExistenteInt(int usuario, int usuarioID) throws Exception {
+        String query = "SELECT userToFollowId FROM follows WHERE users_id = " + usuarioID + ";";
+        Statement sentencia = con.createStatement();
+        ResultSet resultado = sentencia.executeQuery(query);
+        System.out.println("-------------------------");
+        while(resultado.next()) {
+            if (resultado.getInt(1) == usuario) {
+                return true;
+            }
+        }
+        resultado.close();
+        sentencia.close();
+        return false;
+    }
+
     public void dejarDeSeguir(int usuarioADejarDeSeguir, int usuarioID) throws Exception {
         String query = "DELETE FROM follows WHERE users_id = ? AND userToFollowId = ?;";
         PreparedStatement sentencia = con.prepareStatement(query);

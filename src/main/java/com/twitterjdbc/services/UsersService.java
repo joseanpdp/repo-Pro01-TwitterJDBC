@@ -27,11 +27,11 @@ public interface UsersService {
     public boolean comprobarUsuarioExistenteInt(int usuario) throws Exception;
 
 
-    public void mostrarLosUsuariosQueSigues(int usuarioID) throws SQLException;
+    public void mostrarLosUsuariosQueSigues(int usuarioID, Consumer<ResultSet> consumidor) throws SQLException;
 
     // public void ejecutarDejarDeSeguir(Scanner scanner, int usuarioID) throws Exception;
 
     // public boolean comprobarUsuarioQueSiguesExistenteInt(int usuario, int usuarioID) throws Exception;
 
-    public void mostrarLosUsuariosQueTeSiguen(int usuarioID) throws SQLException;
+    public void mostrarLosUsuariosQueTeSiguen(int usuarioID, Consumer<ResultSet> consumidor) throws SQLException;
 }
