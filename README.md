@@ -1,11 +1,8 @@
 # Proyecto de Gestión de Usuarios y Publicaciones
 
-Este proyecto es una aplicación basada en consola que permite a los usuarios 
-registrarse, iniciar sesión y gestionar perfiles, publicaciones y establecer
-relaciones entre usuarios. 
+Este proyecto es una aplicación basada en consola que permite a los usuarios registrarse, iniciar sesión y gestionar perfiles, publicaciones y establecer relaciones entre usuarios.
 
-El proyecto está desarrollado en Java y utiliza una base de datos 
-MySQL para almacenar la información llamada **social_network**.
+El proyecto está desarrollado en Java y utiliza una base de datos MySQL para almacenar la información llamada **social_network**.
 
 ## Características principales
 
@@ -14,14 +11,14 @@ MySQL para almacenar la información llamada **social_network**.
   - Un **nombre de usuario**.
   - Un **correo electrónico**.
   - Una **descripción**.
-  - Una **contraseña**.
+  - Una **contraseña** (encriptada con BCrypt para mayor seguridad).
 - **Inicio de sesión:** Los usuarios pueden iniciar sesión con los siguientes datos, siempre y cuando el usuario esté registrado:
   - El **nombre de usuario**.
-  - La **contraseña**.
+  - La **contraseña** (verificada con BCrypt).
 - **Perfil de usuario:** Permite ver los detalles anteriormente indicados de tu perfil y los de otros usuarios registrados.
 
 ### Publicaciones
-- **Crear publicaciones:** Los usuarios pueden publicar una cadena de texto que se almacenará en la base de datos.
+- **Crear publicaciones:** Los usuarios pueden publicar una cadena de texto que se almacenará en la base de datos junto con la fecha y hora.
 - **Ver publicaciones:** Permite a los usuarios ver todas las publicaciones de la aplicación o solo las suyas.
 - **Eliminar publicaciones:** Los usuarios pueden eliminar las publicaciones que ellos mismos hayan publicado.
 
@@ -30,41 +27,86 @@ MySQL para almacenar la información llamada **social_network**.
 - **Dejar de seguir usuarios:** Permite dejar de seguir a otros usuarios que previamente se estaban siguiendo.
 - **Mostrar usuarios seguidos:** Muestra una lista de los usuarios a los que estás siguiendo.
 - **Mostrar seguidores:** Muestra una lista de los usuarios que te están siguiendo.
-- **Mostrar publicaciones de usuarios seguidos**: Muestra una lista de las publicaciones de los usuarios a los que sigue el usuario.
+- **Mostrar publicaciones de usuarios seguidos:** Muestra una lista de las publicaciones de los usuarios a los que sigue el usuario, ordenadas por fecha.
 
 ## Estructura del código
 
-### Métodos principales
+### Servicios principales
 
-#### Seguimiento de usuarios
-- **`ejecutarSeguir()`**: Permite al usuario actual seguir a otro usuario ingresando su ID.
-- **`comprobarUsuarioExistenteInt(int usuario)`**: Comprueba si un usuario con un ID específico existe en la base de datos.
-- **`seguir(int usuarioASeguir)`**: Inserta un registro en la tabla `follows` indicando que el usuario actual sigue al usuario especificado.
-- **`ejecutarDejarDeSeguir()`**: Permite al usuario actual dejar de seguir a otro usuario ingresando su ID.
-- **`comprobarUsuarioQueSiguesExistenteInt(int usuario)`**: Comprueba si el usuario especificado está siendo seguido por el usuario actual.
-- **`dejarDeSeguir(int usuarioADejarDeSeguir)`**: Elimina un registro de la tabla `follows` que indica que el usuario actual sigue al usuario especificado.
+#### `UsersService`
+- **`showYourProfile(int userID, Consumer<ResultSet> consumer)`**: Muestra el perfil del usuario actual.
+- **`showAllProfiles(int userID, Consumer<ResultSet> consumer)`**: Muestra los perfiles de todos los usuarios excepto el usuario actual.
+- **`userExistsString(String user)`**: Verifica si existe un usuario con el nombre proporcionado.
+- **`showAProfile(String username, Consumer<ResultSet> consumer)`**: Muestra el perfil de un usuario específico dado su nombre.
+- **`userExistsInt(int user)`**: Verifica si existe un usuario con el ID proporcionado.
+- **`showFollowedUsers(int userID, Consumer<ResultSet> consumer)`**: Muestra los usuarios seguidos por el usuario actual.
+- **`showYourFollowers(int userID, Consumer<ResultSet> consumer)`**: Muestra los seguidores del usuario actual.
 
-#### Visualización de relaciones
-- **`mostrarLosUsuariosQueSigues()`**: Muestra una lista detallada de los usuarios que el usuario actual está siguiendo.
-- **`mostrarLosUsuariosQueTeSiguen()`**: Muestra una lista detallada de los usuarios que están siguiendo al usuario actual.
+#### `RegisterService`
+- **`register(String username, String email, String password)`**: Registra un nuevo usuario con contraseña encriptada y fecha de registro.
 
-#### Publicaciones de usuarios seguidos
-- **`mostrarPublicacionesDeUsuariosSeguidos()`**: Muestra todas las publicaciones realizadas por los usuarios seguidos, ordenadas de más reciente a más antigua.
+#### `PublicationsService`
+- **`post(String text, int userID)`**: Permite al usuario crear una publicación.
+- **`showYourPublications(int userID, Consumer<ResultSet> consumer)`**: Muestra las publicaciones del usuario actual.
+- **`deletePublication(int publicationId, int userID)`**: Permite al usuario eliminar una publicación específica.
+- **`showAllPublications(Consumer<ResultSet> consumer)`**: Muestra todas las publicaciones, ordenadas por fecha.
+- **`showFollowedTweets(int userID, Consumer<ResultSet> consumer)`**: Muestra las publicaciones de los usuarios seguidos por el usuario actual.
 
-#### Gestión del flujo
-- **`elegirRegistrarOiniciarSesion()`**: Presenta un menú inicial para que el usuario elija entre registrarse, iniciar sesión o salir de la aplicación.
-- **`elegirAccionesDeUsuario()`**: Presenta un menú con todas las acciones disponibles para un usuario autenticado.
+#### `LoginService`
+- **`login(String username, String password)`**: Permite al usuario iniciar sesión verificando las credenciales con contraseñas encriptadas.
+
+#### `FollowsService`
+- **`userExistsInt(int user)`**: Verifica si existe un usuario con el ID especificado.
+- **`userFollowdExistsInt(int user, int userID)`**: Verifica si el usuario actual ya sigue al usuario especificado.
+- **`follow(int userToFollow, int userID)`**: Permite al usuario actual seguir a otro usuario.
+- **`unfollow(int userToUnfollow, int userID)`**: Permite al usuario actual dejar de seguir a otro usuario.
+
+### Implementaciones
+- **`UsersServiceImpl`**: Implementación de las operaciones relacionadas con los usuarios.
+- **`RegisterServiceImpl`**: Implementación del registro de usuarios con encriptación de contraseñas.
+- **`PublicationsServiceImpl`**: Implementación de la gestión de publicaciones.
+- **`LoginServiceImpl`**: Implementación del inicio de sesión.
+- **`FollowsServiceImpl`**: Implementación de las relaciones entre usuarios, permitiendo seguir y dejar de seguir a otros usuarios.
+
+### Controladores
+
+Los controladores gestionan la interacción entre el usuario y los servicios. Aquí se describen los principales controladores:
+
+#### `UsersController`
+- **`showMyProfile(int userID)`**: Muestra el perfil del usuario actual.
+- **`showAllProfiles(int userID)`**: Muestra los perfiles de todos los usuarios, excepto el usuario actual.
+- **`showAProfile()`**: Solicita el nombre de usuario e imprime su perfil si existe.
+- **`showYourFollows(int userID)`**: Muestra los perfiles de los usuarios seguidos.
+- **`showYourFollowers(int userID)`**: Muestra los perfiles de los usuarios que siguen al usuario actual.
+
+#### `RegisterController`
+- **`register()`**: Permite registrar un nuevo usuario solicitando nombre, email y contraseña, encriptando la contraseña antes de almacenarla.
+
+#### `PublicationsController`
+- **`post(int userID)`**: Solicita un texto y lo publica en nombre del usuario.
+- **`showYourTweets(int userID)`**: Muestra las publicaciones realizadas por el usuario.
+- **`deletePublication(int userID)`**: Permite al usuario eliminar una de sus publicaciones.
+- **`showTweets()`**: Muestra todas las publicaciones en el sistema, ordenadas por fecha.
+- **`showFollowedTweets(int userID)`**: Muestra las publicaciones realizadas por los usuarios seguidos.
+
+#### `LoginController`
+- **`login()`**: Solicita las credenciales del usuario y valida su autenticidad.
+
+#### `FollowsController`
+- **`follow(int userID)`**: Permite al usuario seguir a otro usuario seleccionándolo de una lista.
+- **`unfollow(int userID)`**: Permite al usuario dejar de seguir a otro usuario seleccionado de una lista.
 
 ### Conexión a la base de datos
-- **`conectar(String url, String usuario, String password)`**: Establece una conexión con la base de datos MySQL utilizando las credenciales proporcionadas.
+- El proyecto utiliza un objeto `Connection` proporcionado al crear instancias de los servicios.
+- Las consultas se realizan utilizando `PreparedStatement` y `Statement` para interactuar con la base de datos.
 
-### Método principal
-- **`main(String[] args)`**: Punto de entrada de la aplicación, gestiona la conexión a la base de datos y llama a los métodos de inicio del programa.
+### Seguridad
+- Las contraseñas de los usuarios se encriptan utilizando la biblioteca `BCrypt`.
 
 ## Requisitos del sistema
 - **Java**: JDK 8 o superior.
 - **Base de datos**: MySQL.
-- **Dependencias**: 
+- **Dependencias**:
   - MySQL Connector.
   - JBCrypt.
 
