@@ -1,4 +1,4 @@
-# Proyecto de Gestión de Usuarios y Publicaciones
+# Proyecto de Gestión de Usuarios y Publicaciones (Twitter JDBC)
 
 Este proyecto es una aplicación basada en consola que permite a los usuarios registrarse, iniciar sesión y gestionar perfiles, publicaciones y establecer relaciones entre usuarios.
 
